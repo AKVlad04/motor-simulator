@@ -39,6 +39,13 @@
       justify-content: center;
       height: 150px;
     }
+    .controls h3 {
+      margin-top: 25px; /* mut titlul mai jos */
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 1.3em;
+      text-align: center;
+    }
     .controls label {
       margin: 10px 0;
       width: 80%;
@@ -50,21 +57,6 @@
       width: 100%;
       margin-top: 5px;
       cursor: pointer;
-    }
-    button {
-      padding: 8px 16px;
-      cursor: pointer;
-      border: none;
-      background-color: #007acc;
-      color: white;
-      border-radius: 3px;
-      font-weight: 600;
-      font-size: 1em;
-      margin-top: 10px;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #005fa3;
     }
     .results {
       flex-grow: 1;
@@ -87,15 +79,14 @@
         <h3>Motor DC</h3>
         <label>
           Putere (kW): <br />
-          <input type="range" id="dcPower" min="0.1" max="20" step="0.1" value="5" oninput="dcPowerValue.textContent = this.value">
+          <input type="range" id="dcPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('dc')">
           <span id="dcPowerValue">5</span>
         </label>
         <label>
           Sarcină (%): <br />
-          <input type="range" id="dcLoad" min="1" max="100" step="1" value="100" oninput="dcLoadValue.textContent = this.value">
+          <input type="range" id="dcLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('dc')">
           <span id="dcLoadValue">100</span>
         </label>
-        <button onclick="simulate('dc')">Simulează</button>
       </div>
       <div class="results" id="dcResults">Rezultate simulare...</div>
     </div>
@@ -106,15 +97,14 @@
         <h3>Motor Sincron (AC)</h3>
         <label>
           Putere (kW): <br />
-          <input type="range" id="syncPower" min="0.1" max="20" step="0.1" value="5" oninput="syncPowerValue.textContent = this.value">
+          <input type="range" id="syncPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('synchronous')">
           <span id="syncPowerValue">5</span>
         </label>
         <label>
           Sarcină (%): <br />
-          <input type="range" id="syncLoad" min="1" max="100" step="1" value="100" oninput="syncLoadValue.textContent = this.value">
+          <input type="range" id="syncLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('synchronous')">
           <span id="syncLoadValue">100</span>
         </label>
-        <button onclick="simulate('synchronous')">Simulează</button>
       </div>
       <div class="results" id="syncResults">Rezultate simulare...</div>
     </div>
@@ -125,15 +115,14 @@
         <h3>Motor Asincron (AC)</h3>
         <label>
           Putere (kW): <br />
-          <input type="range" id="asyncPower" min="0.1" max="20" step="0.1" value="5" oninput="asyncPowerValue.textContent = this.value">
+          <input type="range" id="asyncPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('asynchronous')">
           <span id="asyncPowerValue">5</span>
         </label>
         <label>
           Sarcină (%): <br />
-          <input type="range" id="asyncLoad" min="1" max="100" step="1" value="100" oninput="asyncLoadValue.textContent = this.value">
+          <input type="range" id="asyncLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('asynchronous')">
           <span id="asyncLoadValue">100</span>
         </label>
-        <button onclick="simulate('asynchronous')">Simulează</button>
       </div>
       <div class="results" id="asyncResults">Rezultate simulare...</div>
     </div>
@@ -144,15 +133,14 @@
         <h3>Motor Generic</h3>
         <label>
           Putere (kW): <br />
-          <input type="range" id="genericPower" min="0.1" max="20" step="0.1" value="5" oninput="genericPowerValue.textContent = this.value">
+          <input type="range" id="genericPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('generic')">
           <span id="genericPowerValue">5</span>
         </label>
         <label>
           Sarcină (%): <br />
-          <input type="range" id="genericLoad" min="1" max="100" step="1" value="100" oninput="genericLoadValue.textContent = this.value">
+          <input type="range" id="genericLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('generic')">
           <span id="genericLoadValue">100</span>
         </label>
-        <button onclick="simulate('generic')">Simulează</button>
       </div>
       <div class="results" id="genericResults">Rezultate simulare...</div>
     </div>
@@ -160,7 +148,28 @@
   </div>
 
   <script>
-    function simulate(type) {
+    function updateSimulation(type) {
+      // actualizez valorile sliderelor din span-uri
+      switch(type) {
+        case 'dc':
+          document.getElementById('dcPowerValue').textContent = document.getElementById('dcPower').value;
+          document.getElementById('dcLoadValue').textContent = document.getElementById('dcLoad').value;
+          break;
+        case 'synchronous':
+          document.getElementById('syncPowerValue').textContent = document.getElementById('syncPower').value;
+          document.getElementById('syncLoadValue').textContent = document.getElementById('syncLoad').value;
+          break;
+        case 'asynchronous':
+          document.getElementById('asyncPowerValue').textContent = document.getElementById('asyncPower').value;
+          document.getElementById('asyncLoadValue').textContent = document.getElementById('asyncLoad').value;
+          break;
+        case 'generic':
+          document.getElementById('genericPowerValue').textContent = document.getElementById('genericPower').value;
+          document.getElementById('genericLoadValue').textContent = document.getElementById('genericLoad').value;
+          break;
+      }
+
+      // calculez și actualizez rezultatele
       let power, load, efficiency, voltage;
       let resultsDiv;
 
@@ -193,9 +202,6 @@
           voltage = 220;
           resultsDiv = document.getElementById('genericResults');
           break;
-        default:
-          alert('Tip motor necunoscut');
-          return;
       }
 
       const outputPower = (power * (load / 100)) * efficiency;
@@ -209,6 +215,11 @@
       text += `Curent estimat: ${current.toFixed(2)} A\n`;
 
       resultsDiv.textContent = text;
+    }
+
+    // La încărcare, inițializează toate simulările ca să fie afișate rezultatele default
+    window.onload = () => {
+      ['dc', 'synchronous', 'asynchronous', 'generic'].forEach(updateSimulation);
     }
   </script>
 </body>
