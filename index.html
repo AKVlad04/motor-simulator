@@ -1,176 +1,347 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Simulare Motoare Electrice</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      width: 100vw;
-      font-family: Arial, sans-serif;
-    }
-    .container {
-      display: grid;
-      grid-template-columns: 50% 50%;
-      grid-template-rows: 50% 50%;
-      height: 100vh;
-      width: 100vw;
-    }
-    .motor {
-      padding: 15px;
-      border: 2px solid #333;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .motor h2 {
-      text-align: center;
-    }
-    .slider-group {
-      margin-bottom: 10px;
-    }
-    .slider-group label {
-      display: block;
-    }
-    .results {
-      margin-top: 10px;
-      background-color: #f2f2f2;
-      padding: 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simulare Motoare Electrice</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0; padding: 0; height: 100vh; width: 100vw; font-family: Arial, sans-serif;
+  }
+  .container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 50% 50%;
+    height: 100vh;
+    width: 100vw;
+  }
+  .motor-box {
+    border: 2px solid #333;
+    display: flex;
+    padding: 10px;
+    background: #eee;
+    position: relative;
+  }
+  .control-panel {
+    width: 30%;
+    background: #ccc;
+    padding: 15px 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border-radius: 6px;
+  }
+  .control-panel h2 {
+    margin: 0 0 10px 0;
+    text-align: center;
+  }
+  .slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+  }
+  .slider-group label {
+    font-size: 14px;
+  }
+  .slider-group input[type=range] {
+    width: 100%;
+    margin-top: 3px;
+  }
+  .canvas-area {
+    flex-grow: 1;
+    background: #80b3ff; /* albastru */
+    margin-left: 10px;
+    border-radius: 6px;
+    position: relative;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <!-- Motor DC -->
-    <div class="motor" id="motor-dc">
-      <h2>Motor DC</h2>
-      <div class="slider-group">
-        <label>Tensiune (V): <span id="dc-tens-value">12</span></label>
-        <input type="range" min="0" max="24" value="12" id="dc-tens">
-      </div>
-      <div class="slider-group">
-        <label>Sarcină (%): <span id="dc-load-value">50</span></label>
-        <input type="range" min="0" max="100" value="50" id="dc-load">
-      </div>
-      <div class="results" id="dc-results"></div>
-    </div>
 
-    <!-- Motor AC -->
-    <div class="motor" id="motor-ac">
-      <h2>Motor AC</h2>
+<div class="container">
+  <div class="motor-box" id="dcMotorBox">
+    <div class="control-panel">
+      <h2>Motor Curent Continuu</h2>
       <div class="slider-group">
-        <label>Tensiune (V): <span id="ac-tens-value">220</span></label>
-        <input type="range" min="100" max="400" value="220" id="ac-tens">
+        <label for="dcVoltage">Tensiune (V): <span id="dcVoltageVal">220</span></label>
+        <input type="range" id="dcVoltage" min="0" max="300" value="220" step="1" />
       </div>
       <div class="slider-group">
-        <label>Frecvență (Hz): <span id="ac-freq-value">50</span></label>
-        <input type="range" min="10" max="100" value="50" id="ac-freq">
+        <label for="dcLoad">Sarcină (Nm): <span id="dcLoadVal">10</span></label>
+        <input type="range" id="dcLoad" min="0" max="50" value="10" step="1" />
       </div>
-      <div class="results" id="ac-results"></div>
     </div>
-
-    <!-- Motor Sincron -->
-    <div class="motor" id="motor-sincron">
-      <h2>Motor Sincron</h2>
-      <div class="slider-group">
-        <label>Frecvență (Hz): <span id="syn-freq-value">50</span></label>
-        <input type="range" min="10" max="100" value="50" id="syn-freq">
-      </div>
-      <div class="slider-group">
-        <label>Număr Poli: <span id="syn-pole-value">4</span></label>
-        <input type="range" min="2" max="12" step="2" value="4" id="syn-pole">
-      </div>
-      <div class="results" id="syn-results"></div>
-    </div>
-
-    <!-- Motor Asincron -->
-    <div class="motor" id="motor-asincron">
-      <h2>Motor Asincron</h2>
-      <div class="slider-group">
-        <label>Frecvență (Hz): <span id="asyn-freq-value">50</span></label>
-        <input type="range" min="10" max="100" value="50" id="asyn-freq">
-      </div>
-      <div class="slider-group">
-        <label>Număr Poli: <span id="asyn-pole-value">4</span></label>
-        <input type="range" min="2" max="12" step="2" value="4" id="asyn-pole">
-      </div>
-      <div class="slider-group">
-        <label>Sarcină (%): <span id="asyn-load-value">50</span></label>
-        <input type="range" min="0" max="100" value="50" id="asyn-load">
-      </div>
-      <div class="results" id="asyn-results"></div>
+    <div class="canvas-area">
+      <canvas id="dcCanvas"></canvas>
     </div>
   </div>
 
-  <!-- SCRIPT -->
-  <script>
-    // DC
-    const dcTens = document.getElementById("dc-tens");
-    const dcLoad = document.getElementById("dc-load");
-    function updateDC() {
-      const V = parseFloat(dcTens.value);
-      const L = parseFloat(dcLoad.value);
-      const speed = Math.max(0, (V - L * 0.05) * 10).toFixed(2);
-      document.getElementById("dc-tens-value").innerText = V;
-      document.getElementById("dc-load-value").innerText = L;
-      document.getElementById("dc-results").innerHTML = `Viteză estimată: <strong>${speed} rot/min</strong>`;
-    }
-    dcTens.oninput = updateDC;
-    dcLoad.oninput = updateDC;
-    updateDC();
+  <div class="motor-box" id="acMotorBox">
+    <div class="control-panel">
+      <h2>Motor Curent Alternativ</h2>
+      <div class="slider-group">
+        <label for="acVoltage">Tensiune (V): <span id="acVoltageVal">230</span></label>
+        <input type="range" id="acVoltage" min="0" max="300" value="230" step="1" />
+      </div>
+      <div class="slider-group">
+        <label for="acFrequency">Frecvență (Hz): <span id="acFrequencyVal">50</span></label>
+        <input type="range" id="acFrequency" min="0" max="100" value="50" step="1" />
+      </div>
+    </div>
+    <div class="canvas-area">
+      <canvas id="acCanvas"></canvas>
+    </div>
+  </div>
 
-    // AC
-    const acTens = document.getElementById("ac-tens");
-    const acFreq = document.getElementById("ac-freq");
-    function updateAC() {
-      const V = parseFloat(acTens.value);
-      const f = parseFloat(acFreq.value);
-      document.getElementById("ac-tens-value").innerText = V;
-      document.getElementById("ac-freq-value").innerText = f;
-      document.getElementById("ac-results").innerHTML = `Parametri curent: <strong>${V} V</strong>, <strong>${f} Hz</strong>`;
-    }
-    acTens.oninput = updateAC;
-    acFreq.oninput = updateAC;
-    updateAC();
+  <div class="motor-box" id="syncMotorBox">
+    <div class="control-panel">
+      <h2>Motor Sincron</h2>
+      <div class="slider-group">
+        <label for="syncVoltage">Tensiune (V): <span id="syncVoltageVal">220</span></label>
+        <input type="range" id="syncVoltage" min="0" max="300" value="220" step="1" />
+      </div>
+      <div class="slider-group">
+        <label for="syncSpeed">Viteză (rpm): <span id="syncSpeedVal">1500</span></label>
+        <input type="range" id="syncSpeed" min="0" max="3000" value="1500" step="10" />
+      </div>
+    </div>
+    <div class="canvas-area">
+      <canvas id="syncCanvas"></canvas>
+    </div>
+  </div>
 
-    // Sincron
-    const synFreq = document.getElementById("syn-freq");
-    const synPole = document.getElementById("syn-pole");
-    function updateSyn() {
-      const f = parseFloat(synFreq.value);
-      const p = parseInt(synPole.value);
-      const rpm = ((120 * f) / p).toFixed(2);
-      document.getElementById("syn-freq-value").innerText = f;
-      document.getElementById("syn-pole-value").innerText = p;
-      document.getElementById("syn-results").innerHTML = `Viteză sincronă: <strong>${rpm} rot/min</strong>`;
-    }
-    synFreq.oninput = updateSyn;
-    synPole.oninput = updateSyn;
-    updateSyn();
+  <div class="motor-box" id="asyncMotorBox">
+    <div class="control-panel">
+      <h2>Motor Asincron</h2>
+      <div class="slider-group">
+        <label for="asyncVoltage">Tensiune (V): <span id="asyncVoltageVal">230</span></label>
+        <input type="range" id="asyncVoltage" min="0" max="300" value="230" step="1" />
+      </div>
+      <div class="slider-group">
+        <label for="asyncSlip">Alunecare (%): <span id="asyncSlipVal">3</span></label>
+        <input type="range" id="asyncSlip" min="0" max="10" value="3" step="0.1" />
+      </div>
+    </div>
+    <div class="canvas-area">
+      <canvas id="asyncCanvas"></canvas>
+    </div>
+  </div>
+</div>
 
-    // Asincron
-    const asynFreq = document.getElementById("asyn-freq");
-    const asynPole = document.getElementById("asyn-pole");
-    const asynLoad = document.getElementById("asyn-load");
-    function updateAsyn() {
-      const f = parseFloat(asynFreq.value);
-      const p = parseInt(asynPole.value);
-      const load = parseFloat(asynLoad.value);
-      const rpmSync = (120 * f) / p;
-      const slip = load * 0.01;
-      const rpm = (rpmSync * (1 - slip)).toFixed(2);
-      document.getElementById("asyn-freq-value").innerText = f;
-      document.getElementById("asyn-pole-value").innerText = p;
-      document.getElementById("asyn-load-value").innerText = load;
-      document.getElementById("asyn-results").innerHTML = `Viteză estimată: <strong>${rpm} rot/min</strong><br/>Slip: <strong>${(slip * 100).toFixed(1)}%</strong>`;
+<script>
+  // Functie pentru desenarea unui rotor rotativ simplu
+  function drawRotor(ctx, cx, cy, radius, angle) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.fillStyle = 'orange';
+    ctx.beginPath();
+    ctx.moveTo(-radius/4, -radius);
+    ctx.lineTo(radius/4, -radius);
+    ctx.lineTo(radius/4, radius);
+    ctx.lineTo(-radius/4, radius);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Functie pentru animatia de unda sinusoidala
+  function drawSineWave(ctx, width, height, time, amplitude, frequency) {
+    ctx.beginPath();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    let midY = height / 2;
+    ctx.moveTo(0, midY);
+    for(let x=0; x<=width; x++) {
+      let y = midY + amplitude * Math.sin((2 * Math.PI * frequency * (x/width)) + time);
+      ctx.lineTo(x, y);
     }
-    asynFreq.oninput = updateAsyn;
-    asynPole.oninput = updateAsyn;
-    asynLoad.oninput = updateAsyn;
-    updateAsyn();
-  </script>
+    ctx.stroke();
+  }
+
+  // Configurare motoare si animatii
+
+  // Motor Curent Continuu
+  (function() {
+    const voltageSlider = document.getElementById('dcVoltage');
+    const loadSlider = document.getElementById('dcLoad');
+    const voltageVal = document.getElementById('dcVoltageVal');
+    const loadVal = document.getElementById('dcLoadVal');
+    const canvas = document.getElementById('dcCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set dimensiuni canvas
+    function resize() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Valori initiale
+    let voltage = +voltageSlider.value;
+    let load = +loadSlider.value;
+    voltageVal.textContent = voltage;
+    loadVal.textContent = load;
+
+    // Event listener update valori
+    voltageSlider.oninput = () => {
+      voltage = +voltageSlider.value;
+      voltageVal.textContent = voltage;
+    };
+    loadSlider.oninput = () => {
+      load = +loadSlider.value;
+      loadVal.textContent = load;
+    };
+
+    let angle = 0;
+    function animate(time) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // desen rotor cu viteza influentata de tensiune si sarcina
+      let speedFactor = voltage / (load + 1);
+      angle += 0.05 * speedFactor * 0.01; 
+      drawRotor(ctx, canvas.width/2, canvas.height/2, 40, angle);
+      requestAnimationFrame(animate);
+    }
+    animate();
+  })();
+
+  // Motor Curent Alternativ
+  (function() {
+    const voltageSlider = document.getElementById('acVoltage');
+    const frequencySlider = document.getElementById('acFrequency');
+    const voltageVal = document.getElementById('acVoltageVal');
+    const frequencyVal = document.getElementById('acFrequencyVal');
+    const canvas = document.getElementById('acCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let voltage = +voltageSlider.value;
+    let frequency = +frequencySlider.value;
+    voltageVal.textContent = voltage;
+    frequencyVal.textContent = frequency;
+
+    voltageSlider.oninput = () => {
+      voltage = +voltageSlider.value;
+      voltageVal.textContent = voltage;
+    };
+    frequencySlider.oninput = () => {
+      frequency = +frequencySlider.value;
+      frequencyVal.textContent = frequency;
+    };
+
+    let time = 0;
+    function animate() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // unda sinusoidala
+      let amplitude = voltage / 2;
+      drawSineWave(ctx, canvas.width, canvas.height, time, amplitude, frequency / 10);
+      time += 0.1;
+      requestAnimationFrame(animate);
+    }
+    animate();
+  })();
+
+  // Motor Sincron
+  (function() {
+    const voltageSlider = document.getElementById('syncVoltage');
+    const speedSlider = document.getElementById('syncSpeed');
+    const voltageVal = document.getElementById('syncVoltageVal');
+    const speedVal = document.getElementById('syncSpeedVal');
+    const canvas = document.getElementById('syncCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let voltage = +voltageSlider.value;
+    let speed = +speedSlider.value;
+    voltageVal.textContent = voltage;
+    speedVal.textContent = speed;
+
+    voltageSlider.oninput = () => {
+      voltage = +voltageSlider.value;
+      voltageVal.textContent = voltage;
+    };
+    speedSlider.oninput = () => {
+      speed = +speedSlider.value;
+      speedVal.textContent = speed;
+    };
+
+    let angle = 0;
+    function animate() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // rotor sincron cu viteza dependenta de speed
+      angle += speed * 0.0005;
+      drawRotor(ctx, canvas.width/2, canvas.height/2, 40, angle);
+      requestAnimationFrame(animate);
+    }
+    animate();
+  })();
+
+  // Motor Asincron
+  (function() {
+    const voltageSlider = document.getElementById('asyncVoltage');
+    const slipSlider = document.getElementById('asyncSlip');
+    const voltageVal = document.getElementById('asyncVoltageVal');
+    const slipVal = document.getElementById('asyncSlipVal');
+    const canvas = document.getElementById('asyncCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let voltage = +voltageSlider.value;
+    let slip = +slipSlider.value;
+    voltageVal.textContent = voltage;
+    slipVal.textContent = slip.toFixed(1);
+
+    voltageSlider.oninput = () => {
+      voltage = +voltageSlider.value;
+      voltageVal.textContent = voltage;
+    };
+    slipSlider.oninput = () => {
+      slip = +slipSlider.value;
+      slipVal.textContent = slip.toFixed(1);
+    };
+
+    let angle = 0;
+    function animate() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // rotor asincron, viteza influentata de slip
+      let speedFactor = 1 - slip / 10; // scade viteza cand slip creste
+      angle += 0.05 * speedFactor;
+      drawRotor(ctx, canvas.width/2, canvas.height/2, 40, angle);
+      requestAnimationFrame(animate);
+    }
+    animate();
+  })();
+
+</script>
+
 </body>
 </html>
