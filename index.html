@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Motor Performance Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Motor Performance Simulator</h1>
+
+  <form id="simForm">
+    <label>Tip motor:</label>
+    <select id="motorType">
+      <option value="DC">Motor DC</option>
+      <option value="AC">Motor Asincron</option>
+    </select><br><br>
+
+    <label>Putere (kW):</label>
+    <input type="number" id="power" value="5"><br><br>
+
+    <label>Sarcină (%):</label>
+    <input type="range" id="load" min="0" max="100" value="50" oninput="loadValue.innerText = load.value + '%'">
+    <span id="loadValue">50%</span><br><br>
+
+    <button type="submit">Simulează</button>
+  </form>
+
+  <canvas id="resultChart" width="600" height="300"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
 
