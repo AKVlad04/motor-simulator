@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Simulatoare motoare electrice</title>
+  <title>Simulatoare motoare electrice cu slider</title>
   <style>
     body, html {
       margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif;
+      background: #fafafa;
     }
     .grid-container {
       display: grid;
@@ -22,12 +23,48 @@
       padding: 10px;
       display: flex;
       flex-direction: column;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .controls {
       background: #f0f0f0;
-      padding: 10px;
+      padding: 20px;
       margin-bottom: 10px;
       border-radius: 5px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 150px;
+    }
+    .controls label {
+      margin: 10px 0;
+      width: 80%;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    input[type=range] {
+      width: 100%;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #007acc;
+      color: white;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 1em;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #005fa3;
     }
     .results {
       flex-grow: 1;
@@ -37,37 +74,27 @@
       white-space: pre-wrap;
       font-family: monospace;
       overflow-y: auto;
-    }
-    label {
-      font-weight: bold;
       font-size: 0.9em;
-    }
-    input[type=number] {
-      width: 70px;
-      margin: 0 10px 10px 0;
-    }
-    button {
-      padding: 5px 10px;
-      cursor: pointer;
-      border: none;
-      background-color: #007acc;
-      color: white;
-      border-radius: 3px;
-    }
-    button:hover {
-      background-color: #005fa3;
     }
   </style>
 </head>
 <body>
   <div class="grid-container">
-    
+
     <!-- Motor DC -->
     <div class="panel" id="dcPanel">
       <div class="controls">
         <h3>Motor DC</h3>
-        <label>Putere (kW): <input type="number" id="dcPower" value="5" min="0.1" step="0.1"></label><br/>
-        <label>Sarcină (%): <input type="number" id="dcLoad" value="100" min="1" max="100"></label><br/>
+        <label>
+          Putere (kW): <br />
+          <input type="range" id="dcPower" min="0.1" max="20" step="0.1" value="5" oninput="dcPowerValue.textContent = this.value">
+          <span id="dcPowerValue">5</span>
+        </label>
+        <label>
+          Sarcină (%): <br />
+          <input type="range" id="dcLoad" min="1" max="100" step="1" value="100" oninput="dcLoadValue.textContent = this.value">
+          <span id="dcLoadValue">100</span>
+        </label>
         <button onclick="simulate('dc')">Simulează</button>
       </div>
       <div class="results" id="dcResults">Rezultate simulare...</div>
@@ -77,8 +104,16 @@
     <div class="panel" id="syncPanel">
       <div class="controls">
         <h3>Motor Sincron (AC)</h3>
-        <label>Putere (kW): <input type="number" id="syncPower" value="5" min="0.1" step="0.1"></label><br/>
-        <label>Sarcină (%): <input type="number" id="syncLoad" value="100" min="1" max="100"></label><br/>
+        <label>
+          Putere (kW): <br />
+          <input type="range" id="syncPower" min="0.1" max="20" step="0.1" value="5" oninput="syncPowerValue.textContent = this.value">
+          <span id="syncPowerValue">5</span>
+        </label>
+        <label>
+          Sarcină (%): <br />
+          <input type="range" id="syncLoad" min="1" max="100" step="1" value="100" oninput="syncLoadValue.textContent = this.value">
+          <span id="syncLoadValue">100</span>
+        </label>
         <button onclick="simulate('synchronous')">Simulează</button>
       </div>
       <div class="results" id="syncResults">Rezultate simulare...</div>
@@ -88,19 +123,35 @@
     <div class="panel" id="asyncPanel">
       <div class="controls">
         <h3>Motor Asincron (AC)</h3>
-        <label>Putere (kW): <input type="number" id="asyncPower" value="5" min="0.1" step="0.1"></label><br/>
-        <label>Sarcină (%): <input type="number" id="asyncLoad" value="100" min="1" max="100"></label><br/>
+        <label>
+          Putere (kW): <br />
+          <input type="range" id="asyncPower" min="0.1" max="20" step="0.1" value="5" oninput="asyncPowerValue.textContent = this.value">
+          <span id="asyncPowerValue">5</span>
+        </label>
+        <label>
+          Sarcină (%): <br />
+          <input type="range" id="asyncLoad" min="1" max="100" step="1" value="100" oninput="asyncLoadValue.textContent = this.value">
+          <span id="asyncLoadValue">100</span>
+        </label>
         <button onclick="simulate('asynchronous')">Simulează</button>
       </div>
       <div class="results" id="asyncResults">Rezultate simulare...</div>
     </div>
 
-    <!-- Motor generic (poate fi un alt motor DC pentru demo) -->
+    <!-- Motor Generic -->
     <div class="panel" id="genericPanel">
       <div class="controls">
         <h3>Motor Generic</h3>
-        <label>Putere (kW): <input type="number" id="genericPower" value="5" min="0.1" step="0.1"></label><br/>
-        <label>Sarcină (%): <input type="number" id="genericLoad" value="100" min="1" max="100"></label><br/>
+        <label>
+          Putere (kW): <br />
+          <input type="range" id="genericPower" min="0.1" max="20" step="0.1" value="5" oninput="genericPowerValue.textContent = this.value">
+          <span id="genericPowerValue">5</span>
+        </label>
+        <label>
+          Sarcină (%): <br />
+          <input type="range" id="genericLoad" min="1" max="100" step="1" value="100" oninput="genericLoadValue.textContent = this.value">
+          <span id="genericLoadValue">100</span>
+        </label>
         <button onclick="simulate('generic')">Simulează</button>
       </div>
       <div class="results" id="genericResults">Rezultate simulare...</div>
@@ -150,8 +201,8 @@
       const outputPower = (power * (load / 100)) * efficiency;
       const current = (outputPower * 1000) / voltage;
 
-      let text = `Putere nominală: ${power} kW\n`;
-      text += `Sarcină: ${load} %\n`;
+      let text = `Putere nominală: ${power.toFixed(2)} kW\n`;
+      text += `Sarcină: ${load.toFixed(0)} %\n`;
       text += `Randament estimat: ${(efficiency * 100).toFixed(1)} %\n`;
       text += `Tensiune: ${voltage} V\n`;
       text += `Putere ieșire estimată: ${outputPower.toFixed(2)} kW\n`;
