@@ -3,224 +3,364 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Simulatoare motoare electrice cu slider</title>
+  <title>Simulare Motoare Electrotehnică</title>
   <style>
-    body, html {
-      margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif;
-      background: #fafafa;
+    * {
+      box-sizing: border-box;
     }
-    .grid-container {
+    body, html {
+      margin: 0; padding: 0; height: 100vh; width: 100vw;
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      height: 100vh;
-      gap: 10px;
-      padding: 10px;
-      box-sizing: border-box;
+      gap: 5px;
     }
-    .panel {
-      border: 2px solid #333;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
+    .motor-container {
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border: 1.8px solid #ccc;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: row;
+      padding: 15px;
+      overflow: hidden;
+      position: relative;
     }
     .controls {
-      background: #f0f0f0;
-      padding: 20px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-
+      width: 35%;
+      background: #f7f9fc;
+      border-radius: 10px;
+      padding: 15px 10px 15px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 150px;
-    }
-    .controls h3 {
-      margin-top: 25px; /* mut titlul mai jos */
-      margin-bottom: 15px;
-      font-weight: 700;
-      font-size: 1.3em;
-      text-align: center;
+      gap: 14px;
     }
     .controls label {
-      margin: 10px 0;
+      margin: 7px 0 5px 0;
       width: 80%;
       text-align: center;
       font-weight: 600;
       font-size: 0.95em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
-    input[type=range] {
+    .controls input[type="range"] {
       width: 100%;
-      margin-top: 5px;
-      cursor: pointer;
     }
-    .results {
+    .simulation {
       flex-grow: 1;
       background: #e8f4f8;
-      border-radius: 5px;
-      padding: 10px;
-      white-space: pre-wrap;
+      border-radius: 10px;
+      margin-left: 15px;
+      padding: 12px 15px 12px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
       font-family: monospace;
-      overflow-y: auto;
       font-size: 0.9em;
+      color: #003366;
+      position: relative;
+    }
+    .simulation canvas {
+      border: 1.2px solid #007bff;
+      border-radius: 6px;
+      background: #d9e9ff;
+      margin-bottom: 10px;
+      max-width: 100%;
+    }
+    .motor-title {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 700;
+      font-size: 1.1em;
+      color: #004080;
     }
   </style>
 </head>
 <body>
-  <div class="grid-container">
 
-    <!-- Motor DC -->
-    <div class="panel" id="dcPanel">
-      <div class="controls">
-        <h3>Motor DC</h3>
-        <label>
-          Putere (kW): <br />
-          <input type="range" id="dcPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('dc')">
-          <span id="dcPowerValue">5</span>
-        </label>
-        <label>
-          Sarcină (%): <br />
-          <input type="range" id="dcLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('dc')">
-          <span id="dcLoadValue">100</span>
-        </label>
-      </div>
-      <div class="results" id="dcResults">Rezultate simulare...</div>
+  <div class="motor-container" id="dcMotor">
+    <div class="motor-title">Motor CC (Curent Continu)</div>
+    <div class="controls">
+      <label> Tensiune (V)
+        <input type="range" min="0" max="300" step="1" value="120" id="dcVoltage" />
+      </label>
+      <label> Curent (A)
+        <input type="range" min="0" max="50" step="0.1" value="10" id="dcCurrent" />
+      </label>
+      <label> Sarcină (%)
+        <input type="range" min="0" max="100" step="1" value="50" id="dcLoad" />
+      </label>
     </div>
-
-    <!-- Motor Sincron -->
-    <div class="panel" id="syncPanel">
-      <div class="controls">
-        <h3>Motor Sincron (AC)</h3>
-        <label>
-          Putere (kW): <br />
-          <input type="range" id="syncPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('synchronous')">
-          <span id="syncPowerValue">5</span>
-        </label>
-        <label>
-          Sarcină (%): <br />
-          <input type="range" id="syncLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('synchronous')">
-          <span id="syncLoadValue">100</span>
-        </label>
-      </div>
-      <div class="results" id="syncResults">Rezultate simulare...</div>
+    <div class="simulation">
+      <canvas id="dcCanvas" width="150" height="80"></canvas>
+      <pre id="dcOutput"></pre>
     </div>
-
-    <!-- Motor Asincron -->
-    <div class="panel" id="asyncPanel">
-      <div class="controls">
-        <h3>Motor Asincron (AC)</h3>
-        <label>
-          Putere (kW): <br />
-          <input type="range" id="asyncPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('asynchronous')">
-          <span id="asyncPowerValue">5</span>
-        </label>
-        <label>
-          Sarcină (%): <br />
-          <input type="range" id="asyncLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('asynchronous')">
-          <span id="asyncLoadValue">100</span>
-        </label>
-      </div>
-      <div class="results" id="asyncResults">Rezultate simulare...</div>
-    </div>
-
-    <!-- Motor Generic -->
-    <div class="panel" id="genericPanel">
-      <div class="controls">
-        <h3>Motor Generic</h3>
-        <label>
-          Putere (kW): <br />
-          <input type="range" id="genericPower" min="0.1" max="20" step="0.1" value="5" oninput="updateSimulation('generic')">
-          <span id="genericPowerValue">5</span>
-        </label>
-        <label>
-          Sarcină (%): <br />
-          <input type="range" id="genericLoad" min="1" max="100" step="1" value="100" oninput="updateSimulation('generic')">
-          <span id="genericLoadValue">100</span>
-        </label>
-      </div>
-      <div class="results" id="genericResults">Rezultate simulare...</div>
-    </div>
-
   </div>
 
-  <script>
-    function updateSimulation(type) {
-      // actualizez valorile sliderelor din span-uri
-      switch(type) {
-        case 'dc':
-          document.getElementById('dcPowerValue').textContent = document.getElementById('dcPower').value;
-          document.getElementById('dcLoadValue').textContent = document.getElementById('dcLoad').value;
-          break;
-        case 'synchronous':
-          document.getElementById('syncPowerValue').textContent = document.getElementById('syncPower').value;
-          document.getElementById('syncLoadValue').textContent = document.getElementById('syncLoad').value;
-          break;
-        case 'asynchronous':
-          document.getElementById('asyncPowerValue').textContent = document.getElementById('asyncPower').value;
-          document.getElementById('asyncLoadValue').textContent = document.getElementById('asyncLoad').value;
-          break;
-        case 'generic':
-          document.getElementById('genericPowerValue').textContent = document.getElementById('genericPower').value;
-          document.getElementById('genericLoadValue').textContent = document.getElementById('genericLoad').value;
-          break;
-      }
+  <div class="motor-container" id="acMotor">
+    <div class="motor-title">Motor CA (Curent Alternativ)</div>
+    <div class="controls">
+      <label> Tensiune (V)
+        <input type="range" min="0" max="400" step="1" value="230" id="acVoltage" />
+      </label>
+      <label> Frecvență (Hz)
+        <input type="range" min="40" max="60" step="0.1" value="50" id="acFreq" />
+      </label>
+      <label> Sarcină (%)
+        <input type="range" min="0" max="100" step="1" value="70" id="acLoad" />
+      </label>
+    </div>
+    <div class="simulation">
+      <canvas id="acCanvas" width="150" height="80"></canvas>
+      <pre id="acOutput"></pre>
+    </div>
+  </div>
 
-      // calculez și actualizez rezultatele
-      let power, load, efficiency, voltage;
-      let resultsDiv;
+  <div class="motor-container" id="syncMotor">
+    <div class="motor-title">Motor Sincron</div>
+    <div class="controls">
+      <label> Tensiune (V)
+        <input type="range" min="0" max="400" step="1" value="220" id="syncVoltage" />
+      </label>
+      <label> Turatie (rpm)
+        <input type="range" min="0" max="3600" step="10" value="1500" id="syncSpeed" />
+      </label>
+      <label> Sarcină (%)
+        <input type="range" min="0" max="100" step="1" value="60" id="syncLoad" />
+      </label>
+    </div>
+    <div class="simulation">
+      <canvas id="syncCanvas" width="150" height="80"></canvas>
+      <pre id="syncOutput"></pre>
+    </div>
+  </div>
 
-      switch(type) {
-        case 'dc':
-          power = parseFloat(document.getElementById('dcPower').value);
-          load = parseFloat(document.getElementById('dcLoad').value);
-          efficiency = 0.85;
-          voltage = 220;
-          resultsDiv = document.getElementById('dcResults');
-          break;
-        case 'synchronous':
-          power = parseFloat(document.getElementById('syncPower').value);
-          load = parseFloat(document.getElementById('syncLoad').value);
-          efficiency = 0.90;
-          voltage = 400;
-          resultsDiv = document.getElementById('syncResults');
-          break;
-        case 'asynchronous':
-          power = parseFloat(document.getElementById('asyncPower').value);
-          load = parseFloat(document.getElementById('asyncLoad').value);
-          efficiency = 0.86;
-          voltage = 400;
-          resultsDiv = document.getElementById('asyncResults');
-          break;
-        case 'generic':
-          power = parseFloat(document.getElementById('genericPower').value);
-          load = parseFloat(document.getElementById('genericLoad').value);
-          efficiency = 0.80;
-          voltage = 220;
-          resultsDiv = document.getElementById('genericResults');
-          break;
-      }
+  <div class="motor-container" id="asyncMotor">
+    <div class="motor-title">Motor Asincron</div>
+    <div class="controls">
+      <label> Tensiune (V)
+        <input type="range" min="0" max="400" step="1" value="230" id="asyncVoltage" />
+      </label>
+      <label> Turatie (rpm)
+        <input type="range" min="0" max="3600" step="10" value="1400" id="asyncSpeed" />
+      </label>
+      <label> Sarcină (%)
+        <input type="range" min="0" max="100" step="1" value="75" id="asyncLoad" />
+      </label>
+    </div>
+    <div class="simulation">
+      <canvas id="asyncCanvas" width="150" height="80"></canvas>
+      <pre id="asyncOutput"></pre>
+    </div>
+  </div>
 
-      const outputPower = (power * (load / 100)) * efficiency;
-      const current = (outputPower * 1000) / voltage;
+<script>
+  // Parametri motoare
+  const dcParams = {
+    voltage: 120,
+    current: 10,
+    load: 50
+  };
+  const acParams = {
+    voltage: 230,
+    freq: 50,
+    load: 70
+  };
+  const syncParams = {
+    voltage: 220,
+    speed: 1500,
+    load: 60
+  };
+  const asyncParams = {
+    voltage: 230,
+    speed: 1400,
+    load: 75
+  };
 
-      let text = `Putere nominală: ${power.toFixed(2)} kW\n`;
-      text += `Sarcină: ${load.toFixed(0)} %\n`;
-      text += `Randament estimat: ${(efficiency * 100).toFixed(1)} %\n`;
-      text += `Tensiune: ${voltage} V\n`;
-      text += `Putere ieșire estimată: ${outputPower.toFixed(2)} kW\n`;
-      text += `Curent estimat: ${current.toFixed(2)} A\n`;
+  // Functie actualizare output si valori
+  function updateDC() {
+    const power = (dcParams.voltage * dcParams.current * dcParams.load / 100).toFixed(1);
+    document.getElementById('dcOutput').textContent =
+      `Putere estimată: ${power} W\n` +
+      `Tensiune: ${dcParams.voltage} V\n` +
+      `Curent: ${dcParams.current} A\n` +
+      `Sarcină: ${dcParams.load} %`;
+  }
+  function updateAC() {
+    const power = (acParams.voltage * acParams.freq * acParams.load / 100).toFixed(1);
+    document.getElementById('acOutput').textContent =
+      `Putere estimată: ${power} W\n` +
+      `Tensiune: ${acParams.voltage} V\n` +
+      `Frecvență: ${acParams.freq} Hz\n` +
+      `Sarcină: ${acParams.load} %`;
+  }
+  function updateSync() {
+    const power = (syncParams.voltage * syncParams.speed * syncParams.load / 1000).toFixed(1);
+    document.getElementById('syncOutput').textContent =
+      `Putere estimată: ${power} W\n` +
+      `Tensiune: ${syncParams.voltage} V\n` +
+      `Turație: ${syncParams.speed} rpm\n` +
+      `Sarcină: ${syncParams.load} %`;
+  }
+  function updateAsync() {
+    const power = (asyncParams.voltage * asyncParams.speed * asyncParams.load / 1000).toFixed(1);
+    document.getElementById('asyncOutput').textContent =
+      `Putere estimată: ${power} W\n` +
+      `Tensiune: ${asyncParams.voltage} V\n` +
+      `Turație: ${asyncParams.speed} rpm\n` +
+      `Sarcină: ${asyncParams.load} %`;
+  }
 
-      resultsDiv.textContent = text;
-    }
+  // Adaugă event listeners pe slider-e
 
-    // La încărcare, inițializează toate simulările ca să fie afișate rezultatele default
-    window.onload = () => {
-      ['dc', 'synchronous', 'asynchronous', 'generic'].forEach(updateSimulation);
-    }
-  </script>
-</body>
-</html>
+  // DC
+  document.getElementById('dcVoltage').addEventListener('input', e => {
+    dcParams.voltage = +e.target.value;
+    updateDC();
+  });
+  document.getElementById('dcCurrent').addEventListener('input', e => {
+    dcParams.current = +e.target.value;
+    updateDC();
+  });
+  document.getElementById('dcLoad').addEventListener('input', e => {
+    dcParams.load = +e.target.value;
+    updateDC();
+  });
+
+  // AC
+  document.getElementById('acVoltage').addEventListener('input', e => {
+    acParams.voltage = +e.target.value;
+    updateAC();
+  });
+  document.getElementById('acFreq').addEventListener('input', e => {
+    acParams.freq = +e.target.value;
+    updateAC();
+  });
+  document.getElementById('acLoad').addEventListener('input', e => {
+    acParams.load = +e.target.value;
+    updateAC();
+  });
+
+  // Sync
+  document.getElementById('syncVoltage').addEventListener('input', e => {
+    syncParams.voltage = +e.target.value;
+    updateSync();
+  });
+  document.getElementById('syncSpeed').addEventListener('input', e => {
+    syncParams.speed = +e.target.value;
+    updateSync();
+  });
+  document.getElementById('syncLoad').addEventListener('input', e => {
+    syncParams.load = +e.target.value;
+    updateSync();
+  });
+
+  // Async
+  document.getElementById('asyncVoltage').addEventListener('input', e => {
+    asyncParams.voltage = +e.target.value;
+    updateAsync();
+  });
+  document.getElementById('asyncSpeed').addEventListener('input', e => {
+    asyncParams.speed = +e.target.value;
+    updateAsync();
+  });
+  document.getElementById('asyncLoad').addEventListener('input', e => {
+    asyncParams.load = +e.target.value;
+    updateAsync();
+  });
+
+  // Actualizare initiala la incarcare
+  updateDC();
+  updateAC();
+  updateSync();
+  updateAsync();
+
+  // Canvas animatii - functii animate pentru fiecare motor
+
+  // DC Canvas
+  const dcCanvas = document.getElementById('dcCanvas');
+  const dcCtx = dcCanvas.getContext('2d');
+
+  function animateDC(t = 0) {
+    dcCtx.clearRect(0, 0, dcCanvas.width, dcCanvas.height);
+
+    // puterea max e prag pentru scalare
+    const maxPower = 1000;
+    const power = dcParams.voltage * dcParams.current * dcParams.load / 100;
+
+    // creez o oscilatie pentru pulsatie
+    const pulse = (Math.sin(t/500) + 1) / 2; // oscileaza intre 0 si 1
+
+    // înălțimea barei în funcție de putere și pulse
+    const barHeight = (power / maxPower) * dcCanvas.height * pulse;
+    const barWidth = 30;
+
+    // culoare care pulsează pe albastru
+    dcCtx.fillStyle = `rgba(0, 123, 255, ${0.5 + 0.5 * pulse})`;
+    dcCtx.fillRect(dcCanvas.width/2 - barWidth/2, dcCanvas.height - barHeight, barWidth, barHeight);
+
+    // contur
+    dcCtx.strokeStyle = '#007bff';
+    dcCtx.lineWidth = 2;
+    dcCtx.strokeRect(dcCanvas.width/2 - barWidth/2, 0, barWidth, dcCanvas.height);
+
+    requestAnimationFrame(animateDC);
+  }
+
+  // AC Canvas
+  const acCanvas = document.getElementById('acCanvas');
+  const acCtx = acCanvas.getContext('2d');
+
+  function animateAC(t = 0) {
+    acCtx.clearRect(0, 0, acCanvas.width, acCanvas.height);
+
+    const maxPower = 1500;
+    const power = acParams.voltage * acParams.freq * acParams.load / 100;
+
+    const pulse = (Math.cos(t/600) + 1) / 2;
+
+    const barHeight = (power / maxPower) * acCanvas.height * pulse;
+    const barWidth = 30;
+
+    acCtx.fillStyle = `rgba(255, 140, 0, ${0.4 + 0.6 * pulse})`;
+    acCtx.fillRect(acCanvas.width/2 - barWidth/2, acCanvas.height - barHeight, barWidth, barHeight);
+
+    acCtx.strokeStyle = '#ff8c00';
+    acCtx.lineWidth = 2;
+    acCtx.strokeRect(acCanvas.width/2 - barWidth/2, 0, barWidth, acCanvas.height);
+
+    requestAnimationFrame(animateAC);
+  }
+
+  // Sync Canvas
+  const syncCanvas = document.getElementById('syncCanvas');
+  const syncCtx = syncCanvas.getContext('2d');
+
+  function animateSync(t = 0) {
+    syncCtx.clearRect(0, 0, syncCanvas.width, syncCanvas.height);
+
+    const maxPower = 2000;
+    const power = syncParams.voltage * syncParams.speed * syncParams.load / 10000;
+
+    const pulse = (Math.sin(t/700) + 1) / 2;
+
+    const barHeight = (power / maxPower) * syncCanvas.height * pulse;
+    const barWidth = 30;
+
+    syncCtx.fillStyle = `rgba(0, 200, 0, ${0.5 + 0.5 * pulse})`;
+    syncCtx.fillRect(syncCanvas.width/2 - barWidth/2, syncCanvas.height - barHeight, barWidth, barHeight);
+
+    syncCtx.strokeStyle = '#008000';
+    syncCtx.lineWidth = 2;
+    syncCtx.strokeRect(syncCanvas.width/2 - barWidth/2, 0
