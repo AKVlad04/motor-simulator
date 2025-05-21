@@ -3,310 +3,130 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simulare Motoare Electrice</title>
+<title>4 chenare cu controale și animație</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    margin: 0; padding: 10px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    height: 100vh;
-    gap: 15px;
-    background: #f0f0f5;
+    margin: 20px;
   }
-  .motor-container {
-    background: #fff;
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .box {
+    display: flex;
     border: 2px solid #444;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
+    height: 150px;
+  }
+  .left {
+    flex: 1;
     padding: 15px;
-    box-shadow: 0 2px 7px rgba(0,0,0,0.15);
-  }
-  .motor-title {
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.3rem;
-    margin-bottom: 15px;
-    color: #222;
-  }
-  .controls {
+    border-right: 2px solid #444;
+    background: #f0f0f0;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 10px;
   }
-  .slider-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .right {
+    flex: 1;
+    padding: 15px;
+    position: relative;
+    background: #fff;
   }
-  label {
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: #555;
-  }
-  input[type="range"] {
-    width: 90%;
-    cursor: pointer;
-  }
-  .value {
-    margin-top: 4px;
-    font-weight: bold;
-    color: #333;
+  .animation {
+    border: 1px solid #aaa;
+    height: 100px;
+    margin-bottom: 10px;
   }
   .results {
-    background: #e3e7ff;
-    border-radius: 8px;
-    padding: 10px 15px;
-    box-shadow: inset 0 0 5px #a1a9ff;
+    font-size: 14px;
+    color: #333;
   }
-  .result-item {
-    background: #fff;
-    border-radius: 6px;
-    margin: 6px 0;
-    padding: 8px 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    font-weight: 600;
-    color: #222;
-    display: flex;
-    justify-content: space-between;
+  label {
+    font-weight: bold;
   }
-  canvas {
-    border: 1px solid #333;
-    background: #fafafa;
-    border-radius: 8px;
-    margin-top: 5px;
+  input[type=range] {
+    width: 100%;
   }
 </style>
 </head>
 <body>
 
-<!-- Repetă pentru fiecare motor -->
-<div class="motor-container" id="motorDC">
-  <div class="motor-title">Motor Curent Continuu</div>
-  <div class="controls">
-    <div class="slider-group">
-      <label for="rpmDC">Turație (RPM)</label>
-      <input type="range" id="rpmDC" min="0" max="5000" value="1500" step="50" />
-      <div class="value" id="rpmDCVal">1500 RPM</div>
-    </div>
-    <div class="slider-group">
-      <label for="loadDC">Sarcină (%)</label>
-      <input type="range" id="loadDC" min="0" max="100" value="50" />
-      <div class="value" id="loadDCVal">50%</div>
-    </div>
-    <div class="slider-group">
-      <label for="voltDC">Tensiune (V)</label>
-      <input type="range" id="voltDC" min="0" max="220" value="120" />
-      <div class="value" id="voltDCVal">120 V</div>
-    </div>
-    <div class="slider-group">
-      <label for="currentDC">Curent (A)</label>
-      <input type="range" id="currentDC" min="0" max="50" value="10" />
-      <div class="value" id="currentDCVal">10 A</div>
-    </div>
-  </div>
-  <div class="results" id="resultsDC">
-    <div class="result-item"><span>Putere mecanică:</span> <span id="powerDC">-</span> W</div>
-    <div class="result-item"><span>Cuplu:</span> <span id="torqueDC">-</span> Nm</div>
-    <div class="result-item"><span>Randament:</span> <span id="efficiencyDC">-</span> %</div>
-    <div class="result-item"><span>Temperatură:</span> <span id="tempDC">-</span> °C</div>
-  </div>
-  <canvas id="canvasDC" width="280" height="150"></canvas>
-</div>
+<div class="container">
 
-<div class="motor-container" id="motorAC">
-  <div class="motor-title">Motor Curent Alternativ</div>
-  <div class="controls">
-    <div class="slider-group">
-      <label for="rpmAC">Turație (RPM)</label>
-      <input type="range" id="rpmAC" min="0" max="3600" value="1400" step="50" />
-      <div class="value" id="rpmACVal">1400 RPM</div>
+  <div class="box" id="box1">
+    <div class="left">
+      <label for="slider1">Slider 1</label>
+      <input type="range" id="slider1" min="0" max="100" value="50" />
+      <label for="slider1b">Slider 1b</label>
+      <input type="range" id="slider1b" min="0" max="100" value="50" />
     </div>
-    <div class="slider-group">
-      <label for="loadAC">Sarcină (%)</label>
-      <input type="range" id="loadAC" min="0" max="100" value="60" />
-      <div class="value" id="loadACVal">60%</div>
-    </div>
-    <div class="slider-group">
-      <label for="voltAC">Tensiune (V)</label>
-      <input type="range" id="voltAC" min="0" max="380" value="230" />
-      <div class="value" id="voltACVal">230 V</div>
-    </div>
-    <div class="slider-group">
-      <label for="currentAC">Curent (A)</label>
-      <input type="range" id="currentAC" min="0" max="60" value="15" />
-      <div class="value" id="currentACVal">15 A</div>
+    <div class="right">
+      <div class="animation" id="anim1">Animatie 1</div>
+      <div class="results" id="results1">Rezultate slider 1</div>
     </div>
   </div>
-  <div class="results" id="resultsAC">
-    <div class="result-item"><span>Putere mecanică:</span> <span id="powerAC">-</span> W</div>
-    <div class="result-item"><span>Cuplu:</span> <span id="torqueAC">-</span> Nm</div>
-    <div class="result-item"><span>Randament:</span> <span id="efficiencyAC">-</span> %</div>
-    <div class="result-item"><span>Temperatură:</span> <span id="tempAC">-</span> °C</div>
-  </div>
-  <canvas id="canvasAC" width="280" height="150"></canvas>
-</div>
 
-<div class="motor-container" id="motorSync">
-  <div class="motor-title">Motor Sincron</div>
-  <div class="controls">
-    <div class="slider-group">
-      <label for="rpmSync">Turație (RPM)</label>
-      <input type="range" id="rpmSync" min="0" max="3000" value="1500" step="50" />
-      <div class="value" id="rpmSyncVal">1500 RPM</div>
+  <div class="box" id="box2">
+    <div class="left">
+      <label for="slider2">Slider 2</label>
+      <input type="range" id="slider2" min="0" max="100" value="50" />
+      <label for="slider2b">Slider 2b</label>
+      <input type="range" id="slider2b" min="0" max="100" value="50" />
     </div>
-    <div class="slider-group">
-      <label for="loadSync">Sarcină (%)</label>
-      <input type="range" id="loadSync" min="0" max="100" value="40" />
-      <div class="value" id="loadSyncVal">40%</div>
-    </div>
-    <div class="slider-group">
-      <label for="voltSync">Tensiune (V)</label>
-      <input type="range" id="voltSync" min="0" max="400" value="220" />
-      <div class="value" id="voltSyncVal">220 V</div>
-    </div>
-    <div class="slider-group">
-      <label for="currentSync">Curent (A)</label>
-      <input type="range" id="currentSync" min="0" max="40" value="12" />
-      <div class="value" id="currentSyncVal">12 A</div>
+    <div class="right">
+      <div class="animation" id="anim2">Animatie 2</div>
+      <div class="results" id="results2">Rezultate slider 2</div>
     </div>
   </div>
-  <div class="results" id="resultsSync">
-    <div class="result-item"><span>Putere mecanică:</span> <span id="powerSync">-</span> W</div>
-    <div class="result-item"><span>Cuplu:</span> <span id="torqueSync">-</span> Nm</div>
-    <div class="result-item"><span>Randament:</span> <span id="efficiencySync">-</span> %</div>
-    <div class="result-item"><span>Temperatură:</span> <span id="tempSync">-</span> °C</div>
-  </div>
-  <canvas id="canvasSync" width="280" height="150"></canvas>
-</div>
 
-<div class="motor-container" id="motorAsyn">
-  <div class="motor-title">Motor Asincron</div>
-  <div class="controls">
-    <div class="slider-group">
-      <label for="rpmAsyn">Turație (RPM)</label>
-      <input type="range" id="rpmAsyn" min="0" max="3600" value="1400" step="50" />
-      <div class="value" id="rpmAsynVal">1400 RPM</div>
+  <div class="box" id="box3">
+    <div class="left">
+      <label for="slider3">Slider 3</label>
+      <input type="range" id="slider3" min="0" max="100" value="50" />
+      <label for="slider3b">Slider 3b</label>
+      <input type="range" id="slider3b" min="0" max="100" value="50" />
     </div>
-    <div class="slider-group">
-      <label for="loadAsyn">Sarcină (%)</label>
-      <input type="range" id="loadAsyn" min="0" max="100" value="65" />
-      <div class="value" id="loadAsynVal">65%</div>
-    </div>
-    <div class="slider-group">
-      <label for="voltAsyn">Tensiune (V)</label>
-      <input type="range" id="voltAsyn" min="0" max="380" value="230" />
-      <div class="value" id="voltAsynVal">230 V</div>
-    </div>
-    <div class="slider-group">
-      <label for="currentAsyn">Curent (A)</label>
-      <input type="range" id="currentAsyn" min="0" max="60" value="18" />
-      <div class="value" id="currentAsynVal">18 A</div>
+    <div class="right">
+      <div class="animation" id="anim3">Animatie 3</div>
+      <div class="results" id="results3">Rezultate slider 3</div>
     </div>
   </div>
-  <div class="results" id="resultsAsyn">
-    <div class="result-item"><span>Putere mecanică:</span> <span id="powerAsyn">-</span> W</div>
-    <div class="result-item"><span>Cuplu:</span> <span id="torqueAsyn">-</span> Nm</div>
-    <div class="result-item"><span>Randament:</span> <span id="efficiencyAsyn">-</span> %</div>
-    <div class="result-item"><span>Temperatură:</span> <span id="tempAsyn">-</span> °C</div>
+
+  <div class="box" id="box4">
+    <div class="left">
+      <label for="slider4">Slider 4</label>
+      <input type="range" id="slider4" min="0" max="100" value="50" />
+      <label for="slider4b">Slider 4b</label>
+      <input type="range" id="slider4b" min="0" max="100" value="50" />
+    </div>
+    <div class="right">
+      <div class="animation" id="anim4">Animatie 4</div>
+      <div class="results" id="results4">Rezultate slider 4</div>
+    </div>
   </div>
-  <canvas id="canvasAsyn" width="280" height="150"></canvas>
+
 </div>
 
 <script>
-  function setupMotor(idPrefix) {
-    const rpm = document.getElementById(`rpm${idPrefix}`);
-    const load = document.getElementById(`load${idPrefix}`);
-    const volt = document.getElementById(`volt${idPrefix}`);
-    const current = document.getElementById(`current${idPrefix}`);
+  function updateResults(boxNumber) {
+    const sliderA = document.getElementById(`slider${boxNumber}`);
+    const sliderB = document.getElementById(`slider${boxNumber}b`);
+    const results = document.getElementById(`results${boxNumber}`);
 
-    const rpmVal = document.getElementById(`rpm${idPrefix}Val`);
-    const loadVal = document.getElementById(`load${idPrefix}Val`);
-    const voltVal = document.getElementById(`volt${idPrefix}Val`);
-    const currentVal = document.getElementById(`current${idPrefix}Val`);
-
-    const power = document.getElementById(`power${idPrefix}`);
-    const torque = document.getElementById(`torque${idPrefix}`);
-    const efficiency = document.getElementById(`efficiency${idPrefix}`);
-    const temp = document.getElementById(`temp${idPrefix}`);
-
-    const canvas = document.getElementById(`canvas${idPrefix}`);
-    const ctx = canvas.getContext('2d');
-
-    function drawAnimation() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const centerX = canvas.width/2;
-      const centerY = canvas.height/2;
-      const radius = 50;
-      const time = Date.now() / 500;
-
-      // Cerc exterior (viteză)
-      ctx.beginPath();
-      ctx.strokeStyle = "#4466ff";
-      ctx.lineWidth = 8;
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2 * (rpm.value / rpm.max));
-      ctx.stroke();
-
-      // Cerc interior (sarcina)
-      ctx.beginPath();
-      ctx.strokeStyle = "#22aa22";
-      ctx.lineWidth = 12;
-      ctx.arc(centerX, centerY, radius - 20, 0, Math.PI * 2 * (load.value / load.max));
-      ctx.stroke();
-
-      // Cerc rotativ pentru efect
-      ctx.beginPath();
-      ctx.strokeStyle = "#ff9933";
-      ctx.lineWidth = 6;
-      const angle = time % (Math.PI * 2);
-      ctx.arc(centerX, centerY, radius - 10, angle, angle + Math.PI / 3);
-      ctx.stroke();
-
-      requestAnimationFrame(drawAnimation);
-    }
-
-    function updateValues() {
-      rpmVal.textContent = `${rpm.value} RPM`;
-      loadVal.textContent = `${load.value}%`;
-      voltVal.textContent = `${volt.value} V`;
-      currentVal.textContent = `${current.value} A`;
-
-      // Calcule exemplu (simplificat, doar să arăt update)
-      const powerVal = (volt.value * current.value * (load.value / 100)).toFixed(1);
-      const torqueVal = ((powerVal / (rpm.value || 1)) * 9.55).toFixed(2); // Nm = P/(ω), ω= RPM*2π/60, 9.55 e factor conversie
-      const efficiencyVal = (80 + (load.value / 2)).toFixed(1);
-      const tempVal = (30 + (load.value / 3)).toFixed(1);
-
-      power.textContent = powerVal;
-      torque.textContent = torqueVal;
-      efficiency.textContent = efficiencyVal;
-      temp.textContent = tempVal;
-    }
-
-    rpm.addEventListener('input', () => {
-      updateValues();
-    });
-    load.addEventListener('input', () => {
-      updateValues();
-    });
-    volt.addEventListener('input', () => {
-      updateValues();
-    });
-    current.addEventListener('input', () => {
-      updateValues();
-    });
-
-    updateValues();
-    drawAnimation();
+    results.textContent = `Valoare slider A: ${sliderA.value}, Valoare slider B: ${sliderB.value}`;
   }
 
-  setupMotor('DC');
-  setupMotor('AC');
-  setupMotor('Sync');
-  setupMotor('Asyn');
+  for(let i = 1; i <= 4; i++) {
+    const sliderA = document.getElementById(`slider${i}`);
+    const sliderB = document.getElementById(`slider${i}b`);
+
+    sliderA.addEventListener('input', () => updateResults(i));
+    sliderB.addEventListener('input', () => updateResults(i));
+
+    updateResults(i);
+  }
 </script>
 
 </body>
